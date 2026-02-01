@@ -3,9 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor de Código Web - Con números de línea copiables</title>
+    <title>Editor de Código Web - Responsivo + Limpiar</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary-color: #1f6feb;
+            --secondary-color: #238636;
+            --danger-color: #da3633;
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --border-color: #30363d;
+            --success-color: #2ea043;
+            --warning-color: #d29922;
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -14,197 +28,250 @@
         }
         
         body {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #e0e0e0;
+            background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+            color: var(--text-primary);
             min-height: 100vh;
-            padding: 20px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
         }
         
         .container {
-            max-width: 1400px;
+            max-width: 100%;
             margin: 0 auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
         }
         
         header {
             text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #0f3460;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
         }
         
         h1 {
-            font-size: 2.8rem;
-            margin-bottom: 10px;
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            margin-bottom: 8px;
             background: linear-gradient(90deg, #4cc9f0, #4361ee);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            line-height: 1.2;
         }
         
         .subtitle {
-            font-size: 1.1rem;
-            color: #a0a0c0;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            color: var(--text-secondary);
             max-width: 800px;
             margin: 0 auto;
             line-height: 1.5;
+            padding: 0 10px;
+        }
+        
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0; /* Importante para que el editor se expanda */
         }
         
         .editor-container {
             display: flex;
             flex-direction: column;
-            background: #0d1117;
+            background: var(--bg-primary);
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            border: 1px solid #30363d;
-            height: 75vh;
+            border: 1px solid var(--border-color);
+            flex: 1;
+            min-height: 400px;
         }
         
         .editor-header {
-            background: #161b22;
-            padding: 15px 20px;
+            background: var(--bg-secondary);
+            padding: 12px 15px;
             display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #30363d;
+            border-bottom: 1px solid var(--border-color);
         }
         
         .editor-title {
-            font-size: 1.4rem;
+            font-size: clamp(1.1rem, 2vw, 1.4rem);
             font-weight: 600;
-            color: #c9d1d9;
+            color: var(--text-primary);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            flex-shrink: 0;
         }
         
         .editor-title i {
-            color: #58a6ff;
+            color: var(--primary-color);
         }
         
         .controls {
             display: flex;
-            gap: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
             align-items: center;
+            justify-content: flex-end;
+            flex: 1;
+            min-width: 0;
         }
         
         .search-container {
             display: flex;
             align-items: center;
-            background: #0d1117;
-            border: 1px solid #30363d;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
             border-radius: 6px;
-            padding: 5px 12px;
-            width: 300px;
+            padding: 6px 10px;
+            min-width: 200px;
+            flex: 1;
+            max-width: 400px;
         }
         
         .search-container i {
-            color: #8b949e;
+            color: var(--text-secondary);
             margin-right: 8px;
+            flex-shrink: 0;
         }
         
         #search-input {
             background: transparent;
             border: none;
-            color: #c9d1d9;
+            color: var(--text-primary);
             width: 100%;
             font-size: 0.95rem;
             outline: none;
+            min-width: 0;
         }
         
         #search-input::placeholder {
-            color: #8b949e;
+            color: var(--text-secondary);
         }
         
         .copy-options {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-left: 10px;
+            gap: 8px;
+            flex-wrap: nowrap;
+            flex-shrink: 0;
         }
         
         .copy-format-selector {
-            background: #21262d;
-            border: 1px solid #30363d;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
             border-radius: 6px;
-            padding: 6px 12px;
-            color: #c9d1d9;
-            font-size: 0.9rem;
+            padding: 6px 10px;
+            color: var(--text-primary);
+            font-size: 0.85rem;
             cursor: pointer;
             outline: none;
             transition: all 0.2s ease;
+            min-width: 140px;
         }
         
         .copy-format-selector:hover {
-            background: #30363d;
+            background: var(--border-color);
         }
         
         .copy-format-selector:focus {
-            border-color: #58a6ff;
+            border-color: var(--primary-color);
         }
         
         .copy-format-label {
-            font-size: 0.9rem;
-            color: #8b949e;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
             white-space: nowrap;
         }
         
+        .buttons-container {
+            display: flex;
+            gap: 8px;
+            flex-wrap: nowrap;
+        }
+        
         .btn {
-            background: #238636;
+            background: var(--primary-color);
             color: white;
             border: none;
             border-radius: 6px;
-            padding: 8px 16px;
-            font-size: 0.95rem;
+            padding: 8px 14px;
+            font-size: 0.9rem;
             font-weight: 500;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             transition: all 0.2s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
         
         .btn:hover {
-            background: #2ea043;
+            opacity: 0.9;
             transform: translateY(-2px);
         }
         
-        .btn-copy {
-            background: #1f6feb;
+        .btn:active {
+            transform: translateY(0);
         }
         
-        .btn-copy:hover {
-            background: #2b7ff1;
+        .btn-success {
+            background: var(--secondary-color);
+        }
+        
+        .btn-danger {
+            background: var(--danger-color);
+        }
+        
+        .btn-danger:hover {
+            background: #f85149;
+        }
+        
+        .btn-success:hover {
+            background: var(--success-color);
         }
         
         .editor-wrapper {
             display: flex;
             flex: 1;
             overflow: hidden;
+            min-height: 300px;
         }
         
         .line-numbers {
-            background: #161b22;
-            color: #8b949e;
-            padding: 15px 10px;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            padding: 15px 8px;
             text-align: right;
             font-family: 'Courier New', monospace;
-            font-size: 0.95rem;
+            font-size: clamp(0.85rem, 1.5vw, 0.95rem);
             line-height: 1.5;
             overflow-y: auto;
             user-select: none;
-            border-right: 1px solid #30363d;
-            min-width: 60px;
+            border-right: 1px solid var(--border-color);
+            min-width: 50px;
+            width: 50px;
+            flex-shrink: 0;
         }
         
         textarea {
             flex: 1;
-            background: #0d1117;
-            color: #c9d1d9;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             border: none;
             padding: 15px;
             font-family: 'Courier New', monospace;
-            font-size: 0.95rem;
+            font-size: clamp(0.85rem, 1.5vw, 0.95rem);
             line-height: 1.5;
             resize: none;
             outline: none;
@@ -212,50 +279,56 @@
             overflow-wrap: normal;
             overflow: auto;
             tab-size: 4;
+            min-width: 0;
         }
         
         .stats {
-            background: #161b22;
-            padding: 12px 20px;
+            background: var(--bg-secondary);
+            padding: 10px 15px;
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
-            border-top: 1px solid #30363d;
-            font-size: 0.9rem;
-            color: #8b949e;
+            gap: 15px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
         }
         
-        .stats div {
+        .stats-item {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
         
         .match-highlight {
-            background-color: rgba(187, 128, 9, 0.4);
+            background-color: rgba(210, 153, 34, 0.3);
             border-radius: 2px;
         }
         
         .current-match {
-            background-color: rgba(187, 128, 9, 0.8);
+            background-color: rgba(210, 153, 34, 0.8);
             border-radius: 2px;
         }
         
         .notification {
             position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: #238636;
+            bottom: 20px;
+            right: 20px;
+            left: 20px;
+            max-width: 400px;
+            background: var(--success-color);
             color: white;
-            padding: 15px 25px;
+            padding: 12px 20px;
             border-radius: 8px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             transform: translateY(100px);
             opacity: 0;
             transition: all 0.3s ease;
             z-index: 1000;
+            margin-left: auto;
         }
         
         .notification.show {
@@ -264,59 +337,140 @@
         }
         
         .notification.error {
-            background: #da3633;
+            background: var(--danger-color);
+        }
+        
+        .notification.warning {
+            background: var(--warning-color);
         }
         
         footer {
             text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #30363d;
-            color: #8b949e;
-            font-size: 0.9rem;
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            flex-shrink: 0;
         }
         
-        @media (max-width: 1024px) {
+        /* Media Queries para responsividad */
+        @media (max-width: 1200px) {
+            .editor-header {
+                gap: 12px;
+            }
+            
             .controls {
-                flex-wrap: wrap;
+                width: 100%;
+                order: 3;
+                margin-top: 10px;
             }
             
             .search-container {
-                width: 100%;
-                order: 1;
-            }
-            
-            .copy-options {
-                order: 2;
-                margin-left: 0;
-            }
-            
-            #copy-btn {
-                order: 3;
+                max-width: 100%;
             }
         }
         
         @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
             .editor-header {
-                flex-direction: column;
-                gap: 15px;
+                padding: 10px;
+            }
+            
+            .editor-title {
+                order: 1;
+            }
+            
+            .buttons-container {
+                order: 2;
+                margin-left: auto;
             }
             
             .controls {
-                width: 100%;
-                justify-content: space-between;
+                order: 3;
+                margin-top: 10px;
             }
             
             .copy-format-label {
                 display: none;
             }
             
-            h1 {
-                font-size: 2rem;
+            .copy-format-selector {
+                min-width: 120px;
+            }
+            
+            .stats {
+                justify-content: center;
+            }
+            
+            .stats-item {
+                flex: 1;
+                justify-content: center;
+                min-width: 120px;
+            }
+            
+            .notification {
+                left: 10px;
+                right: 10px;
+                bottom: 10px;
+                max-width: none;
             }
         }
         
-        /* Tooltip para el selector de formato */
+        @media (max-width: 576px) {
+            .buttons-container {
+                flex-direction: column;
+                width: 100%;
+                margin-top: 10px;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .copy-options {
+                flex-direction: column;
+                align-items: stretch;
+                width: 100%;
+            }
+            
+            .copy-format-selector {
+                width: 100%;
+                min-width: auto;
+            }
+            
+            .editor-title span {
+                display: none;
+            }
+            
+            .line-numbers {
+                min-width: 40px;
+                width: 40px;
+                padding: 15px 5px;
+                font-size: 0.8rem;
+            }
+        }
+        
+        @media (max-height: 600px) {
+            .editor-container {
+                min-height: 300px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+                margin-bottom: 5px;
+            }
+            
+            .subtitle {
+                font-size: 0.85rem;
+            }
+        }
+        
+        /* Tooltip */
         .tooltip {
             position: relative;
             display: inline-block;
@@ -325,8 +479,8 @@
         .tooltip .tooltip-text {
             visibility: hidden;
             width: 200px;
-            background-color: #21262d;
-            color: #c9d1d9;
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
             text-align: center;
             border-radius: 6px;
             padding: 8px;
@@ -338,8 +492,9 @@
             opacity: 0;
             transition: opacity 0.3s;
             font-size: 0.85rem;
-            border: 1px solid #30363d;
+            border: 1px solid var(--border-color);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            pointer-events: none;
         }
         
         .tooltip .tooltip-text::after {
@@ -350,20 +505,50 @@
             margin-left: -5px;
             border-width: 5px;
             border-style: solid;
-            border-color: #21262d transparent transparent transparent;
+            border-color: var(--bg-tertiary) transparent transparent transparent;
         }
         
         .tooltip:hover .tooltip-text {
             visibility: visible;
             opacity: 1;
         }
+        
+        /* Scrollbar personalizado */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+        
+        /* Animaciones */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 0.3s ease;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-code"></i> Editor de Código Web</h1>
-            <p class="subtitle">Escribe y edita código con números de línea copiables. Ideal para depurar con IA o compartir código con referencias de línea.</p>
+            <h1><i class="fas fa-code"></i> Editor de Código</h1>
+            <p class="subtitle">Editor profesional con números de línea copiables. Totalmente responsivo y optimizado para depuración con IA.</p>
         </header>
         
         <main>
@@ -371,30 +556,37 @@
                 <div class="editor-header">
                     <div class="editor-title">
                         <i class="fas fa-file-code"></i>
-                        <span>editor.js</span>
+                        <span>script.js</span>
+                    </div>
+                    
+                    <div class="buttons-container">
+                        <button id="clear-btn" class="btn btn-danger" title="Limpiar todo el código">
+                            <i class="fas fa-broom"></i>
+                            <span class="btn-text">Limpiar</span>
+                        </button>
+                        
+                        <button id="copy-btn" class="btn btn-success">
+                            <i class="far fa-copy"></i>
+                            <span class="btn-text">Copiar</span>
+                        </button>
                     </div>
                     
                     <div class="controls">
                         <div class="search-container">
                             <i class="fas fa-search"></i>
-                            <input type="text" id="search-input" placeholder="Buscar en el código... (Presiona Enter para siguiente)">
+                            <input type="text" id="search-input" placeholder="Buscar... (Enter para siguiente)">
                         </div>
                         
                         <div class="copy-options">
-                            <span class="copy-format-label">Copiar con:</span>
+                            <span class="copy-format-label">Formato:</span>
                             <div class="tooltip">
                                 <select id="copy-format" class="copy-format-selector">
-                                    <option value="with-lines">Números de línea</option>
-                                    <option value="without-lines">Solo código</option>
+                                    <option value="with-lines">Con números</option>
+                                    <option value="without-lines">Sin números</option>
                                 </select>
-                                <span class="tooltip-text">Con números: Ideal para depuración con IA<br>Solo código: Para pegar en otro editor</span>
+                                <span class="tooltip-text">Con números: Perfecto para IA<br>Sin números: Para otros editores</span>
                             </div>
                         </div>
-                        
-                        <button id="copy-btn" class="btn btn-copy">
-                            <i class="far fa-copy"></i>
-                            Copiar código
-                        </button>
                     </div>
                 </div>
                 
@@ -402,28 +594,32 @@
                     <div class="line-numbers" id="line-numbers">
                         1
                     </div>
-                    <textarea id="code-editor" spellcheck="false" placeholder="Escribe tu código aquí... Puedes pegar scripts largos de hasta 10,000 líneas o más."></textarea>
+                    <textarea id="code-editor" spellcheck="false" placeholder="Escribe o pega tu código aquí... (Soporta miles de líneas)"></textarea>
                 </div>
                 
                 <div class="stats">
-                    <div>
+                    <div class="stats-item">
                         <i class="fas fa-code"></i>
                         <span id="lines-count">1 línea</span>
                     </div>
-                    <div>
+                    <div class="stats-item">
                         <i class="fas fa-font"></i>
                         <span id="chars-count">0 caracteres</span>
                     </div>
-                    <div>
+                    <div class="stats-item">
                         <i class="fas fa-search"></i>
                         <span id="matches-count">0 coincidencias</span>
+                    </div>
+                    <div class="stats-item">
+                        <i class="fas fa-expand-alt"></i>
+                        <span id="size-info">Responsivo</span>
                     </div>
                 </div>
             </div>
         </main>
         
         <footer>
-            <p>Editor de Código Web - Copia con números de línea para facilitar la depuración con IA y referencias exactas</p>
+            <p>Editor Web • Totalmente responsivo • Copia con/sin números de línea • Ideal para depuración con IA</p>
         </footer>
         
         <div id="notification" class="notification">
@@ -438,73 +634,125 @@
         const lineNumbers = document.getElementById('line-numbers');
         const searchInput = document.getElementById('search-input');
         const copyBtn = document.getElementById('copy-btn');
+        const clearBtn = document.getElementById('clear-btn');
         const notification = document.getElementById('notification');
         const notificationText = document.getElementById('notification-text');
         const copyFormatSelector = document.getElementById('copy-format');
         const linesCountElement = document.getElementById('lines-count');
         const charsCountElement = document.getElementById('chars-count');
         const matchesCountElement = document.getElementById('matches-count');
+        const sizeInfoElement = document.getElementById('size-info');
         
         // Variables para búsqueda
         let searchMatches = [];
         let currentMatchIndex = -1;
         
         // Código de ejemplo para empezar
-        const sampleCode = `// ¡Bienvenido al editor de código web!
-// Puedes escribir HTML, CSS y JavaScript aquí
-// COPIA CON NÚMEROS DE LÍNEA PARA FACILITAR LA DEPURACIÓN CON IA
+        const sampleCode = `// EDITOR DE CÓDIGO PROFESIONAL - TOTALMENTE RESPONSIVO
+// Copia con números de línea para depuración con IA
 
-// EJEMPLO: Función con error común
-function calcularPromedio(numeros) {
-    let suma = 0;
+// EJEMPLO: Función para validar formulario
+function validarFormulario(formData) {
+    const errores = [];
     
-    // Error intencional: i <= numeros.length
-    for (let i = 0; i <= numeros.length; i++) {
-        suma += numeros[i];
+    // Validar nombre
+    if (!formData.nombre || formData.nombre.trim().length < 2) {
+        errores.push("El nombre debe tener al menos 2 caracteres");
     }
     
-    return suma / numeros.length;
+    // Validar email
+    const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+        errores.push("Email inválido");
+    }
+    
+    // Validar contraseña
+    if (formData.password.length < 8) {
+        errores.push("La contraseña debe tener al menos 8 caracteres");
+    }
+    
+    return {
+        valido: errores.length === 0,
+        errores: errores
+    };
 }
 
-// Línea para probar búsqueda
-const datos = [10, 20, 30, 40, 50];
-
-// Esta línea también contiene "datos"
-console.log("Procesando datos:", datos);
-
-try {
-    const promedio = calcularPromedio(datos);
-    console.log("El promedio es:", promedio);
-} catch (error) {
-    console.error("Error encontrado en la línea 12:", error.message);
-    // La IA podrá decir: "Revisa la línea 12, hay un error de índice"
+// EJEMPLO: Función asíncrona para obtener datos
+async function obtenerDatosDesdeAPI(url) {
+    try {
+        const respuesta = await fetch(url);
+        
+        if (!respuesta.ok) {
+            throw new Error(\`Error HTTP: \${respuesta.status}\`);
+        }
+        
+        const datos = await respuesta.json();
+        return datos;
+    } catch (error) {
+        console.error("Error al obtener datos:", error);
+        return null;
+    }
 }
 
-// Más código de ejemplo
-function saludar(nombre) {
-    return \`¡Hola, \${nombre}!\`;
+// EJEMPLO: Clase para manejar usuarios
+class Usuario {
+    constructor(nombre, email, rol = "usuario") {
+        this.nombre = nombre;
+        this.email = email;
+        this.rol = rol;
+        this.fechaRegistro = new Date();
+    }
+    
+    obtenerInfo() {
+        return \`
+        Nombre: \${this.nombre}
+        Email: \${this.email}
+        Rol: \${this.rol}
+        Registrado: \${this.fechaRegistro.toLocaleDateString()}
+        \`;
+    }
+    
+    esAdministrador() {
+        return this.rol === "admin";
+    }
 }
 
-const usuarios = ["Ana", "Carlos", "María"];
-usuarios.forEach(usuario => {
-    console.log(saludar(usuario));
-});`;
+// Uso de las funciones y clases
+const datosFormulario = {
+    nombre: "Ana López",
+    email: "ana@ejemplo.com",
+    password: "miContraseñaSegura123"
+};
 
-        // Inicializar el editor con código de ejemplo
+const resultado = validarFormulario(datosFormulario);
+console.log("Validación:", resultado);
+
+const usuario1 = new Usuario("Carlos", "carlos@empresa.com", "admin");
+console.log(usuario1.obtenerInfo());
+console.log("¿Es administrador?", usuario1.esAdministrador());
+
+// TIP: Usa "Copiar con números" para enviar a ChatGPT/Copilot
+// Así te podrán decir exactamente en qué línea está un error`;
+
+        // Inicializar el editor
         codeEditor.value = sampleCode;
         updateLineNumbers();
         updateStats();
+        updateSizeInfo();
         
-        // Actualizar números de línea cuando el usuario escribe
-        codeEditor.addEventListener('input', () => {
-            updateLineNumbers();
-            updateStats();
-        });
-        
-        // Manejar scroll sincronizado entre números de línea y editor
-        codeEditor.addEventListener('scroll', () => {
-            lineNumbers.scrollTop = codeEditor.scrollTop;
-        });
+        // Actualizar info de tamaño de pantalla
+        function updateSizeInfo() {
+            const width = window.innerWidth;
+            let size = "";
+            
+            if (width >= 1200) size = "Extra Grande";
+            else if (width >= 992) size = "Grande";
+            else if (width >= 768) size = "Mediano";
+            else if (width >= 576) size = "Pequeño";
+            else size = "Móvil";
+            
+            sizeInfoElement.textContent = `${size} (${width}px)`;
+        }
         
         // Actualizar números de línea
         function updateLineNumbers() {
@@ -524,9 +772,8 @@ usuarios.forEach(usuario => {
             const chars = codeEditor.value.length;
             
             linesCountElement.textContent = `${lines} ${lines === 1 ? 'línea' : 'líneas'}`;
-            charsCountElement.textContent = `${chars.toLocaleString()} caracteres`;
+            charsCountElement.textContent = `${chars.toLocaleString()} chars`;
             
-            // Si hay búsqueda activa, actualizar contador de coincidencias
             if (searchInput.value.trim()) {
                 performSearch(false);
             } else {
@@ -534,20 +781,47 @@ usuarios.forEach(usuario => {
             }
         }
         
-        // Función para obtener el texto formateado según la selección
+        // Función para limpiar todo
+        function clearEditor() {
+            if (codeEditor.value.trim() === "") return;
+            
+            // Pulsar botón para feedback visual
+            clearBtn.classList.add('pulse');
+            setTimeout(() => clearBtn.classList.remove('pulse'), 300);
+            
+            codeEditor.value = "";
+            updateLineNumbers();
+            updateStats();
+            clearHighlights();
+            searchInput.value = "";
+            
+            showNotification("Editor limpiado correctamente", "success");
+        }
+        
+        // Confirmar limpieza
+        clearBtn.addEventListener('click', () => {
+            if (codeEditor.value.trim() !== "") {
+                if (confirm("¿Estás seguro de que quieres limpiar todo el código?")) {
+                    clearEditor();
+                }
+            } else {
+                showNotification("El editor ya está vacío", "warning");
+            }
+        });
+        
+        // Obtener texto formateado
         function getFormattedText() {
             const copyFormat = copyFormatSelector.value;
             const codeLines = codeEditor.value.split('\n');
             
             if (copyFormat === 'without-lines') {
-                // Solo el código
                 return codeEditor.value;
             } else {
-                // Con números de línea
                 let formattedText = '';
+                const maxDigits = codeLines.length.toString().length;
                 
                 codeLines.forEach((line, index) => {
-                    const lineNumber = (index + 1).toString().padStart(4, ' ');
+                    const lineNumber = (index + 1).toString().padStart(maxDigits, ' ');
                     formattedText += `${lineNumber} | ${line}\n`;
                 });
                 
@@ -558,8 +832,6 @@ usuarios.forEach(usuario => {
         // Función de búsqueda
         function performSearch(goToNext = true) {
             const searchText = searchInput.value.trim();
-            
-            // Limpiar resaltados anteriores
             clearHighlights();
             
             if (!searchText) {
@@ -570,14 +842,10 @@ usuarios.forEach(usuario => {
             }
             
             const editorContent = codeEditor.value;
-            const lines = editorContent.split('\n');
             const regex = new RegExp(escapeRegExp(searchText), 'gi');
             
-            // Encontrar todas las coincidencias
             searchMatches = [];
             let match;
-            
-            // Reiniciar la expresión regular
             regex.lastIndex = 0;
             
             while ((match = regex.exec(editorContent)) !== null) {
@@ -587,170 +855,73 @@ usuarios.forEach(usuario => {
                 });
             }
             
-            // Actualizar contador de coincidencias
-            matchesCountElement.textContent = `${searchMatches.length} ${searchMatches.length === 1 ? 'coincidencia' : 'coincidencias'}`;
+            matchesCountElement.textContent = `${searchMatches.length} coincidencia${searchMatches.length !== 1 ? 's' : ''}`;
             
-            // Si no hay coincidencias
             if (searchMatches.length === 0) {
                 currentMatchIndex = -1;
+                showNotification(`No se encontró "${searchText}"`, "warning");
                 return;
             }
             
-            // Navegar a la siguiente coincidencia o a la primera
             if (goToNext) {
                 currentMatchIndex = (currentMatchIndex + 1) % searchMatches.length;
             } else if (currentMatchIndex === -1) {
                 currentMatchIndex = 0;
             }
             
-            // Resaltar todas las coincidencias
-            highlightAllMatches(lines, searchText);
-            
-            // Resaltar la coincidencia actual
+            highlightAllMatches();
             highlightCurrentMatch();
-            
-            // Desplazar a la coincidencia actual
             scrollToCurrentMatch();
         }
         
-        // Escapar caracteres especiales para regex
+        // Escapar regex
         function escapeRegExp(string) {
             return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         }
         
         // Resaltar todas las coincidencias
-        function highlightAllMatches(lines, searchText) {
-            const editorContent = codeEditor.value;
-            const regex = new RegExp(escapeRegExp(searchText), 'gi');
-            
-            // Crear contenido con resaltados
-            let highlightedContent = '';
-            let lastIndex = 0;
-            let match;
-            
-            // Reiniciar la expresión regular
-            regex.lastIndex = 0;
-            
-            while ((match = regex.exec(editorContent)) !== null) {
-                // Agregar texto antes de la coincidencia
-                highlightedContent += editorContent.substring(lastIndex, match.index);
-                
-                // Agregar la coincidencia con span de resaltado
-                highlightedContent += `<span class="match-highlight">${match[0]}</span>`;
-                
-                lastIndex = regex.lastIndex;
-            }
-            
-            // Agregar el resto del texto
-            highlightedContent += editorContent.substring(lastIndex);
-            
-            // Crear un div temporal para calcular posiciones
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = highlightedContent;
-            tempDiv.style.whiteSpace = 'pre';
-            tempDiv.style.fontFamily = "'Courier New', monospace";
-            tempDiv.style.fontSize = '0.95rem';
-            tempDiv.style.lineHeight = '1.5';
-            tempDiv.style.padding = '15px';
-            tempDiv.style.width = codeEditor.offsetWidth + 'px';
-            
-            document.body.appendChild(tempDiv);
-            
-            // Encontrar los elementos resaltados
-            const highlightElements = tempDiv.querySelectorAll('.match-highlight');
-            
-            // Guardar posiciones de cada línea
-            const linePositions = [];
-            let currentLine = 1;
-            let currentPos = 0;
-            
-            for (let i = 0; i < lines.length; i++) {
-                linePositions.push({
-                    line: i + 1,
-                    start: currentPos,
-                    end: currentPos + lines[i].length
-                });
-                currentPos += lines[i].length + 1; // +1 por el carácter de nueva línea
-            }
-            
-            // Limpiar resaltados anteriores en números de línea
+        function highlightAllMatches() {
+            const searchText = searchInput.value.trim();
+            const lines = codeEditor.value.split('\n');
             const lineNumberElements = lineNumbers.querySelectorAll('div');
-            lineNumberElements.forEach(el => {
-                el.classList.remove('match-highlight');
-                el.classList.remove('current-match');
-            });
             
-            // Resaltar números de línea que tienen coincidencias
-            highlightElements.forEach((el, index) => {
-                // Encontrar la posición del elemento en el texto
-                const range = document.createRange();
-                range.selectNodeContents(tempDiv);
-                const tempSpan = document.createElement('span');
-                range.setStart(tempDiv, 0);
-                range.setEndBefore(el);
-                const beforeText = range.toString();
+            lines.forEach((line, lineIndex) => {
+                const regex = new RegExp(escapeRegExp(searchText), 'gi');
+                let match;
                 
-                // Calcular en qué línea está esta coincidencia
-                let lineNumber = 1;
-                let lineBreakCount = 0;
-                
-                for (let i = 0; i < beforeText.length; i++) {
-                    if (beforeText[i] === '\n') {
-                        lineBreakCount++;
-                    }
-                }
-                
-                lineNumber = lineBreakCount + 1;
-                
-                // Resaltar el número de línea
-                if (lineNumberElements[lineNumber - 1]) {
-                    lineNumberElements[lineNumber - 1].classList.add('match-highlight');
-                    
-                    // Si es la coincidencia actual
-                    if (index === currentMatchIndex) {
-                        lineNumberElements[lineNumber - 1].classList.add('current-match');
+                while ((match = regex.exec(line)) !== null) {
+                    if (lineNumberElements[lineIndex]) {
+                        lineNumberElements[lineIndex].classList.add('match-highlight');
                     }
                 }
             });
-            
-            // Eliminar el div temporal
-            document.body.removeChild(tempDiv);
         }
         
-        // Resaltar la coincidencia actual
+        // Resaltar coincidencia actual
         function highlightCurrentMatch() {
-            // Limpiar clase de coincidencia actual en números de línea
             const lineNumberElements = lineNumbers.querySelectorAll('div');
-            lineNumberElements.forEach(el => {
-                el.classList.remove('current-match');
-            });
+            lineNumberElements.forEach(el => el.classList.remove('current-match'));
             
             if (currentMatchIndex >= 0 && currentMatchIndex < searchMatches.length) {
                 const match = searchMatches[currentMatchIndex];
-                const editorContent = codeEditor.value;
-                const textBeforeMatch = editorContent.substring(0, match.start);
+                const textBeforeMatch = codeEditor.value.substring(0, match.start);
                 const lineNumber = textBeforeMatch.split('\n').length;
                 
-                // Resaltar el número de línea de la coincidencia actual
                 if (lineNumberElements[lineNumber - 1]) {
                     lineNumberElements[lineNumber - 1].classList.add('current-match');
                 }
             }
         }
         
-        // Desplazar a la coincidencia actual
+        // Desplazar a coincidencia actual
         function scrollToCurrentMatch() {
             if (currentMatchIndex >= 0 && currentMatchIndex < searchMatches.length) {
                 const match = searchMatches[currentMatchIndex];
-                const editorContent = codeEditor.value;
-                const textBeforeMatch = editorContent.substring(0, match.start);
+                const textBeforeMatch = codeEditor.value.substring(0, match.start);
                 const lineNumber = textBeforeMatch.split('\n').length;
-                
-                // Calcular la posición de scroll
-                const lineHeight = 24; // Aproximadamente la altura de una línea
+                const lineHeight = 24;
                 const scrollPosition = (lineNumber - 1) * lineHeight;
                 
-                // Desplazar el editor
                 codeEditor.scrollTop = Math.max(0, scrollPosition - 100);
             }
         }
@@ -764,32 +935,32 @@ usuarios.forEach(usuario => {
             });
         }
         
-        // Eventos de búsqueda
-        searchInput.addEventListener('input', () => {
-            performSearch(false);
-        });
-        
-        searchInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                performSearch(true);
-            }
-        });
-        
-        // Función para copiar al portapapeles
+        // Copiar al portapapeles
         copyBtn.addEventListener('click', async () => {
+            if (codeEditor.value.trim() === "") {
+                showNotification("No hay código para copiar", "warning");
+                return;
+            }
+            
             try {
                 const textToCopy = getFormattedText();
                 await navigator.clipboard.writeText(textToCopy);
                 
                 const format = copyFormatSelector.value;
+                const lines = codeEditor.value.split('\n').length;
+                
                 if (format === 'with-lines') {
-                    showNotification('Código copiado CON números de línea', 'success');
+                    showNotification(`¡Copiado! ${lines} líneas con números`, "success");
                 } else {
-                    showNotification('Código copiado SIN números de línea', 'success');
+                    showNotification(`¡Copiado! ${lines} líneas sin números`, "success");
                 }
+                
+                // Feedback visual
+                copyBtn.classList.add('pulse');
+                setTimeout(() => copyBtn.classList.remove('pulse'), 300);
             } catch (err) {
-                console.error('Error al copiar: ', err);
-                showNotification('Error al copiar al portapapeles', 'error');
+                console.error('Error al copiar:', err);
+                showNotification("Error al copiar al portapapeles", "error");
             }
         });
         
@@ -798,15 +969,16 @@ usuarios.forEach(usuario => {
             const icon = notification.querySelector('i');
             
             notificationText.textContent = message;
+            notification.className = 'notification';
+            notification.classList.add(type);
             
-            if (type === 'success') {
-                notification.classList.remove('error');
-                icon.className = 'fas fa-check-circle';
-            } else {
-                notification.classList.add('error');
-                icon.className = 'fas fa-exclamation-circle';
-            }
+            const iconClass = {
+                'success': 'fas fa-check-circle',
+                'error': 'fas fa-exclamation-circle',
+                'warning': 'fas fa-exclamation-triangle'
+            }[type] || 'fas fa-info-circle';
             
+            icon.className = iconClass;
             notification.classList.add('show');
             
             setTimeout(() => {
@@ -814,97 +986,136 @@ usuarios.forEach(usuario => {
             }, 3000);
         }
         
-        // Manejar tabs en el editor
+        // Event listeners
+        codeEditor.addEventListener('input', () => {
+            updateLineNumbers();
+            updateStats();
+        });
+        
+        codeEditor.addEventListener('scroll', () => {
+            lineNumbers.scrollTop = codeEditor.scrollTop;
+        });
+        
         codeEditor.addEventListener('keydown', (e) => {
             if (e.key === 'Tab') {
                 e.preventDefault();
-                
                 const start = codeEditor.selectionStart;
                 const end = codeEditor.selectionEnd;
-                
-                // Insertar tabulación
                 codeEditor.value = codeEditor.value.substring(0, start) + '    ' + codeEditor.value.substring(end);
-                
-                // Mover el cursor después del tab
                 codeEditor.selectionStart = codeEditor.selectionEnd = start + 4;
-                
-                // Actualizar números de línea
                 updateLineNumbers();
                 updateStats();
             }
-        });
-        
-        // Permitir pegar grandes cantidades de código
-        codeEditor.addEventListener('paste', (e) => {
-            // Permitir el pegado normal, luego actualizar
-            setTimeout(() => {
-                updateLineNumbers();
-                updateStats();
-                
-                // Mostrar notificación si el código es largo
-                const lines = codeEditor.value.split('\n').length;
-                if (lines > 1000) {
-                    showNotification(`¡${lines.toLocaleString()} líneas cargadas! Usa la función de búsqueda para navegar.`, 'success');
-                }
-            }, 10);
-        });
-        
-        // Cargar contenido largo de ejemplo al hacer doble clic en el título
-        document.querySelector('.editor-title').addEventListener('dblclick', () => {
-            // Generar un código largo de ejemplo con errores para depurar
-            let longCode = "// CÓDIGO LARGO DE EJEMPLO PARA DEPURACIÓN CON IA\n";
-            longCode += "// Este código contiene errores comunes para probar la función de copia con números de línea\n\n";
             
-            // Agregar muchas líneas de código con algunos errores
-            for (let i = 1; i <= 100; i++) {
-                longCode += `function proceso${i}(datos) {\n`;
-                longCode += `    // Procesamiento del lote ${i}\n`;
-                
-                if (i % 10 === 0) {
-                    // Error intencional cada 10 funciones
-                    longCode += `    if (datos = null) {  // ERROR: Asignación en lugar de comparación\n`;
-                } else {
-                    longCode += `    if (datos === null) {\n`;
-                }
-                
-                longCode += `        console.error("Error: datos nulos en proceso ${i}");\n`;
-                longCode += `        return null;\n`;
-                longCode += `    }\n\n`;
-                longCode += `    let resultado = 0;\n`;
-                longCode += `    for (let j = 0; j < datos.length; j++) {\n`;
-                longCode += `        resultado += datos[j];\n`;
-                longCode += `    }\n\n`;
-                longCode += `    return resultado / datos.length;\n`;
+            // Ctrl/Cmd + A para seleccionar todo
+            if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+                e.preventDefault();
+                codeEditor.select();
+            }
+            
+            // Ctrl/Cmd + F para buscar
+            if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                e.preventDefault();
+                searchInput.focus();
+                searchInput.select();
+            }
+        });
+        
+        // Búsqueda
+        searchInput.addEventListener('input', () => performSearch(false));
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') performSearch(true);
+            if (e.key === 'Escape') {
+                searchInput.value = "";
+                clearHighlights();
+                matchesCountElement.textContent = '0 coincidencias';
+                searchInput.blur();
+            }
+        });
+        
+        // Cambiar formato de copia
+        copyFormatSelector.addEventListener('change', function() {
+            const format = this.value;
+            const btnText = document.querySelector('#copy-btn .btn-text');
+            
+            if (format === 'with-lines') {
+                btnText.textContent = 'Copiar con líneas';
+            } else {
+                btnText.textContent = 'Copiar solo código';
+            }
+        });
+        
+        // Actualizar info de tamaño al cambiar ventana
+        window.addEventListener('resize', updateSizeInfo);
+        
+        // Doble click en título para cargar ejemplo grande
+        document.querySelector('.editor-title').addEventListener('dblclick', () => {
+            let longCode = "// CÓDIGO DE EJEMPLO GRANDE - " + new Date().toLocaleString() + "\n";
+            longCode += "// Generado automáticamente para probar el editor\n\n";
+            
+            for (let i = 1; i <= 300; i++) {
+                longCode += `// Sección ${i}\n`;
+                longCode += `function modulo${i}(param) {\n`;
+                longCode += `    // Procesamiento del módulo ${i}\n`;
+                longCode += `    const resultado = param * ${i};\n`;
+                longCode += `    \n`;
+                longCode += `    // Validación del resultado\n`;
+                longCode += `    if (resultado < 0) {\n`;
+                longCode += `        console.warn("Resultado negativo en módulo ${i}");\n`;
+                longCode += `        return 0;\n`;
+                longCode += `    }\n`;
+                longCode += `    \n`;
+                longCode += `    return resultado;\n`;
                 longCode += `}\n\n`;
             }
             
-            longCode += "// Llamadas a las funciones\n";
-            longCode += "const conjuntoDatos = [5, 10, 15, 20, 25];\n\n";
-            
-            longCode += "for (let k = 1; k <= 100; k++) {\n";
-            longCode += `    const prom = proceso\${k}(conjuntoDatos);\n`;
-            longCode += `    console.log(\`Proceso \${k}: \${prom}\`);\n`;
+            longCode += "// Inicialización de módulos\n";
+            longCode += "const resultados = [];\n";
+            longCode += "for (let j = 1; j <= 300; j++) {\n";
+            longCode += `    resultados.push(modulo\${j}(j));\n`;
             longCode += "}\n\n";
-            
-            longCode += "// Fin del código de ejemplo - Total: 100 funciones generadas\n";
-            longCode += "// ¡Usa Copiar con números de línea para facilitar la depuración con IA!\n";
+            longCode += "console.log('Total de módulos procesados:', resultados.length);\n";
             
             codeEditor.value = longCode;
             updateLineNumbers();
             updateStats();
-            showNotification("Código largo de ejemplo cargado (100 funciones con errores para depurar)", 'success');
+            showNotification("Ejemplo grande cargado (300 funciones)", "success");
+            codeEditor.scrollTop = 0;
         });
         
-        // Cambiar el texto del botón según la selección
-        copyFormatSelector.addEventListener('change', function() {
-            const format = this.value;
-            const copyBtnText = copyBtn.querySelector('span');
-            
-            if (format === 'with-lines') {
-                copyBtn.innerHTML = '<i class="far fa-copy"></i><span>Copiar con líneas</span>';
-            } else {
-                copyBtn.innerHTML = '<i class="far fa-copy"></i><span>Copiar solo código</span>';
+        // Pulsar Escape para limpiar búsqueda
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.activeElement !== codeEditor) {
+                if (searchInput.value.trim()) {
+                    searchInput.value = "";
+                    clearHighlights();
+                    matchesCountElement.textContent = '0 coincidencias';
+                    showNotification("Búsqueda limpiada", "success");
+                }
             }
+            
+            // Ctrl/Cmd + L para limpiar editor
+            if ((e.ctrlKey || e.metaKey) && e.key === 'l') {
+                e.preventDefault();
+                clearEditor();
+            }
+        });
+        
+        // Cargar desde localStorage si existe
+        window.addEventListener('load', () => {
+            const savedCode = localStorage.getItem('editor_code');
+            if (savedCode && savedCode.trim() !== "") {
+                codeEditor.value = savedCode;
+                updateLineNumbers();
+                updateStats();
+            }
+            
+            // Auto-guardar cada 5 segundos
+            setInterval(() => {
+                if (codeEditor.value.trim() !== "") {
+                    localStorage.setItem('editor_code', codeEditor.value);
+                }
+            }, 5000);
         });
     </script>
 </body>
