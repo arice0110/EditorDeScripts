@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor de Código Web</title>
+    <title>Editor de Código Web - Con números de línea copiables</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -85,6 +85,7 @@
         .controls {
             display: flex;
             gap: 15px;
+            align-items: center;
         }
         
         .search-container {
@@ -113,6 +114,39 @@
         
         #search-input::placeholder {
             color: #8b949e;
+        }
+        
+        .copy-options {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: 10px;
+        }
+        
+        .copy-format-selector {
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 6px 12px;
+            color: #c9d1d9;
+            font-size: 0.9rem;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        
+        .copy-format-selector:hover {
+            background: #30363d;
+        }
+        
+        .copy-format-selector:focus {
+            border-color: #58a6ff;
+        }
+        
+        .copy-format-label {
+            font-size: 0.9rem;
+            color: #8b949e;
+            white-space: nowrap;
         }
         
         .btn {
@@ -242,14 +276,30 @@
             font-size: 0.9rem;
         }
         
-        @media (max-width: 768px) {
-            .editor-header {
-                flex-direction: column;
-                gap: 15px;
+        @media (max-width: 1024px) {
+            .controls {
+                flex-wrap: wrap;
             }
             
             .search-container {
                 width: 100%;
+                order: 1;
+            }
+            
+            .copy-options {
+                order: 2;
+                margin-left: 0;
+            }
+            
+            #copy-btn {
+                order: 3;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .editor-header {
+                flex-direction: column;
+                gap: 15px;
             }
             
             .controls {
@@ -257,9 +307,55 @@
                 justify-content: space-between;
             }
             
+            .copy-format-label {
+                display: none;
+            }
+            
             h1 {
                 font-size: 2rem;
             }
+        }
+        
+        /* Tooltip para el selector de formato */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #21262d;
+            color: #c9d1d9;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.85rem;
+            border: 1px solid #30363d;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .tooltip .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #21262d transparent transparent transparent;
+        }
+        
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
         }
     </style>
 </head>
@@ -267,7 +363,7 @@
     <div class="container">
         <header>
             <h1><i class="fas fa-code"></i> Editor de Código Web</h1>
-            <p class="subtitle">Escribe y edita HTML, CSS y JavaScript con números de línea, función de búsqueda y capacidad para manejar archivos grandes. Todo en tu navegador.</p>
+            <p class="subtitle">Escribe y edita código con números de línea copiables. Ideal para depurar con IA o compartir código con referencias de línea.</p>
         </header>
         
         <main>
@@ -282,6 +378,17 @@
                         <div class="search-container">
                             <i class="fas fa-search"></i>
                             <input type="text" id="search-input" placeholder="Buscar en el código... (Presiona Enter para siguiente)">
+                        </div>
+                        
+                        <div class="copy-options">
+                            <span class="copy-format-label">Copiar con:</span>
+                            <div class="tooltip">
+                                <select id="copy-format" class="copy-format-selector">
+                                    <option value="with-lines">Números de línea</option>
+                                    <option value="without-lines">Solo código</option>
+                                </select>
+                                <span class="tooltip-text">Con números: Ideal para depuración con IA<br>Solo código: Para pegar en otro editor</span>
+                            </div>
                         </div>
                         
                         <button id="copy-btn" class="btn btn-copy">
@@ -316,12 +423,12 @@
         </main>
         
         <footer>
-            <p>Editor de Código Web - Puedes pegar scripts largos y usar la función de búsqueda para navegar rápidamente</p>
+            <p>Editor de Código Web - Copia con números de línea para facilitar la depuración con IA y referencias exactas</p>
         </footer>
         
         <div id="notification" class="notification">
             <i class="fas fa-check-circle"></i>
-            <span>Texto copiado al portapapeles</span>
+            <span id="notification-text">Texto copiado al portapapeles</span>
         </div>
     </div>
 
@@ -332,6 +439,8 @@
         const searchInput = document.getElementById('search-input');
         const copyBtn = document.getElementById('copy-btn');
         const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notification-text');
+        const copyFormatSelector = document.getElementById('copy-format');
         const linesCountElement = document.getElementById('lines-count');
         const charsCountElement = document.getElementById('chars-count');
         const matchesCountElement = document.getElementById('matches-count');
@@ -343,63 +452,43 @@
         // Código de ejemplo para empezar
         const sampleCode = `// ¡Bienvenido al editor de código web!
 // Puedes escribir HTML, CSS y JavaScript aquí
+// COPIA CON NÚMEROS DE LÍNEA PARA FACILITAR LA DEPURACIÓN CON IA
 
-// EJEMPLO DE HTML
-const htmlCode = \`
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Mi Página Web</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f0f0f0;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #333;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>¡Hola Mundo!</h1>
-        <p>Este es un ejemplo de código HTML con CSS integrado.</p>
-        <button id="miBoton">Haz clic aquí</button>
-    </div>
+// EJEMPLO: Función con error común
+function calcularPromedio(numeros) {
+    let suma = 0;
     
-    <script>
-        document.getElementById('miBoton').addEventListener('click', function() {
-            alert('¡Botón clickeado!');
-        });
-    <\\/script>
-</body>
-</html>
-\`;
-
-// EJEMPLO DE FUNCIÓN JAVASCRIPT
-function factorial(n) {
-    if (n <= 1) return 1;
-    return n * factorial(n - 1);
+    // Error intencional: i <= numeros.length
+    for (let i = 0; i <= numeros.length; i++) {
+        suma += numeros[i];
+    }
+    
+    return suma / numeros.length;
 }
 
-// EJEMPLO DE MANEJO DE ARRAY
-const frutas = ['manzana', 'banana', 'naranja', 'uva', 'mango'];
-const frutasMayusculas = frutas.map(fruta => fruta.toUpperCase());
+// Línea para probar búsqueda
+const datos = [10, 20, 30, 40, 50];
 
-console.log('Factorial de 5:', factorial(5));
-console.log('Frutas en mayúsculas:', frutasMayusculas);
+// Esta línea también contiene "datos"
+console.log("Procesando datos:", datos);
 
-// Intenta buscar "EJEMPLO" o "function" en el código usando la barra de búsqueda arriba`;
+try {
+    const promedio = calcularPromedio(datos);
+    console.log("El promedio es:", promedio);
+} catch (error) {
+    console.error("Error encontrado en la línea 12:", error.message);
+    // La IA podrá decir: "Revisa la línea 12, hay un error de índice"
+}
+
+// Más código de ejemplo
+function saludar(nombre) {
+    return \`¡Hola, \${nombre}!\`;
+}
+
+const usuarios = ["Ana", "Carlos", "María"];
+usuarios.forEach(usuario => {
+    console.log(saludar(usuario));
+});`;
 
         // Inicializar el editor con código de ejemplo
         codeEditor.value = sampleCode;
@@ -442,6 +531,27 @@ console.log('Frutas en mayúsculas:', frutasMayusculas);
                 performSearch(false);
             } else {
                 matchesCountElement.textContent = '0 coincidencias';
+            }
+        }
+        
+        // Función para obtener el texto formateado según la selección
+        function getFormattedText() {
+            const copyFormat = copyFormatSelector.value;
+            const codeLines = codeEditor.value.split('\n');
+            
+            if (copyFormat === 'without-lines') {
+                // Solo el código
+                return codeEditor.value;
+            } else {
+                // Con números de línea
+                let formattedText = '';
+                
+                codeLines.forEach((line, index) => {
+                    const lineNumber = (index + 1).toString().padStart(4, ' ');
+                    formattedText += `${lineNumber} | ${line}\n`;
+                });
+                
+                return formattedText;
             }
         }
         
@@ -668,8 +778,15 @@ console.log('Frutas en mayúsculas:', frutasMayusculas);
         // Función para copiar al portapapeles
         copyBtn.addEventListener('click', async () => {
             try {
-                await navigator.clipboard.writeText(codeEditor.value);
-                showNotification('Código copiado al portapapeles', 'success');
+                const textToCopy = getFormattedText();
+                await navigator.clipboard.writeText(textToCopy);
+                
+                const format = copyFormatSelector.value;
+                if (format === 'with-lines') {
+                    showNotification('Código copiado CON números de línea', 'success');
+                } else {
+                    showNotification('Código copiado SIN números de línea', 'success');
+                }
             } catch (err) {
                 console.error('Error al copiar: ', err);
                 showNotification('Error al copiar al portapapeles', 'error');
@@ -679,9 +796,8 @@ console.log('Frutas en mayúsculas:', frutasMayusculas);
         // Mostrar notificación
         function showNotification(message, type = 'success') {
             const icon = notification.querySelector('i');
-            const text = notification.querySelector('span');
             
-            text.textContent = message;
+            notificationText.textContent = message;
             
             if (type === 'success') {
                 notification.classList.remove('error');
@@ -735,26 +851,60 @@ console.log('Frutas en mayúsculas:', frutasMayusculas);
         
         // Cargar contenido largo de ejemplo al hacer doble clic en el título
         document.querySelector('.editor-title').addEventListener('dblclick', () => {
-            // Generar un código largo de ejemplo
-            let longCode = "// CÓDIGO LARGO DE EJEMPLO - " + new Date().toLocaleString() + "\n";
-            longCode += "// Este es un ejemplo de código con muchas líneas para probar el editor\n\n";
+            // Generar un código largo de ejemplo con errores para depurar
+            let longCode = "// CÓDIGO LARGO DE EJEMPLO PARA DEPURACIÓN CON IA\n";
+            longCode += "// Este código contiene errores comunes para probar la función de copia con números de línea\n\n";
             
-            // Agregar muchas líneas de código
-            for (let i = 1; i <= 500; i++) {
-                longCode += `function ejemplo${i}() {\n`;
-                longCode += `    console.log("Esta es la función ejemplo número ${i}");\n`;
-                longCode += `    // Lógica de ejemplo para la función ${i}\n`;
-                longCode += `    const resultado = ${i} * ${i};\n`;
-                longCode += `    return resultado;\n`;
+            // Agregar muchas líneas de código con algunos errores
+            for (let i = 1; i <= 100; i++) {
+                longCode += `function proceso${i}(datos) {\n`;
+                longCode += `    // Procesamiento del lote ${i}\n`;
+                
+                if (i % 10 === 0) {
+                    // Error intencional cada 10 funciones
+                    longCode += `    if (datos = null) {  // ERROR: Asignación en lugar de comparación\n`;
+                } else {
+                    longCode += `    if (datos === null) {\n`;
+                }
+                
+                longCode += `        console.error("Error: datos nulos en proceso ${i}");\n`;
+                longCode += `        return null;\n`;
+                longCode += `    }\n\n`;
+                longCode += `    let resultado = 0;\n`;
+                longCode += `    for (let j = 0; j < datos.length; j++) {\n`;
+                longCode += `        resultado += datos[j];\n`;
+                longCode += `    }\n\n`;
+                longCode += `    return resultado / datos.length;\n`;
                 longCode += `}\n\n`;
             }
             
-            longCode += "// Fin del código de ejemplo - Total: ~500 funciones generadas\n";
+            longCode += "// Llamadas a las funciones\n";
+            longCode += "const conjuntoDatos = [5, 10, 15, 20, 25];\n\n";
+            
+            longCode += "for (let k = 1; k <= 100; k++) {\n";
+            longCode += `    const prom = proceso\${k}(conjuntoDatos);\n`;
+            longCode += `    console.log(\`Proceso \${k}: \${prom}\`);\n`;
+            longCode += "}\n\n";
+            
+            longCode += "// Fin del código de ejemplo - Total: 100 funciones generadas\n";
+            longCode += "// ¡Usa Copiar con números de línea para facilitar la depuración con IA!\n";
             
             codeEditor.value = longCode;
             updateLineNumbers();
             updateStats();
-            showNotification("Código largo de ejemplo cargado (500 funciones)", 'success');
+            showNotification("Código largo de ejemplo cargado (100 funciones con errores para depurar)", 'success');
+        });
+        
+        // Cambiar el texto del botón según la selección
+        copyFormatSelector.addEventListener('change', function() {
+            const format = this.value;
+            const copyBtnText = copyBtn.querySelector('span');
+            
+            if (format === 'with-lines') {
+                copyBtn.innerHTML = '<i class="far fa-copy"></i><span>Copiar con líneas</span>';
+            } else {
+                copyBtn.innerHTML = '<i class="far fa-copy"></i><span>Copiar solo código</span>';
+            }
         });
     </script>
 </body>
