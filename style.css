@@ -1,1 +1,204 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Courier New', monospace;
+}
 
+body {
+    background: #1e1e1e;
+    color: #d4d4d4;
+    padding: 10px;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    background: #252526;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.header h1 {
+    color: #569cd6;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.3s;
+}
+
+.copy-btn {
+    background: #007acc;
+    color: white;
+}
+
+.copy-numbers-btn {
+    background: #388a34;
+    color: white;
+}
+
+.clear-btn {
+    background: #c42b1c;
+    color: white;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+.editor-container {
+    background: #252526;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.tabs {
+    display: flex;
+    background: #2d2d30;
+}
+
+.tab {
+    padding: 12px 20px;
+    background: none;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+}
+
+.tab.active {
+    background: #1e1e1e;
+    color: white;
+}
+
+.editor-section {
+    display: none;
+    height: 500px;
+}
+
+.editor-section.active {
+    display: block;
+}
+
+.editor-area {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+}
+
+.line-numbers {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 50px;
+    background: #1e1e1e;
+    color: #858585;
+    padding: 10px 5px;
+    text-align: right;
+    font-size: 14px;
+    line-height: 20px;
+    overflow: hidden;
+    border-right: 1px solid #3e3e42;
+    white-space: pre;
+    user-select: none;
+    z-index: 1;
+}
+
+.code-input {
+    position: absolute;
+    top: 0;
+    left: 50px;
+    right: 0;
+    bottom: 0;
+    background: #1e1e1e;
+    color: #d4d4d4;
+    border: none;
+    padding: 10px;
+    font-size: 14px;
+    line-height: 20px;
+    resize: none;
+    outline: none;
+    white-space: pre;
+    overflow-wrap: normal;
+    overflow-x: auto;
+    overflow-y: scroll;
+    tab-size: 4;
+    font-family: 'Courier New', monospace;
+}
+
+.code-input::placeholder {
+    color: #666;
+}
+
+.code-input:focus {
+    outline: none;
+}
+
+.notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #388a34;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s;
+    z-index: 1000;
+}
+
+.notification.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .tabs {
+        overflow-x: auto;
+    }
+    
+    .editor-section {
+        height: 400px;
+    }
+      }
