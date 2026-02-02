@@ -1,1 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor de Código - Funcional</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-code"></i> Editor de Código</h1>
+            <div class="controls">
+                <button id="copyBtn" class="btn copy-btn">
+                    <i class="far fa-copy"></i> Copiar Código
+                </button>
+                <button id="copyWithNumbersBtn" class="btn copy-numbers-btn">
+                    <i class="fas fa-list-ol"></i> Copiar con Números
+                </button>
+                <button id="clearBtn" class="btn clear-btn">
+                    <i class="fas fa-broom"></i> Limpiar
+                </button>
+            </div>
+        </header>
 
+        <div class="editor-container">
+            <div class="tabs">
+                <button class="tab active" data-tab="html">
+                    <i class="fab fa-html5"></i> HTML
+                </button>
+                <button class="tab" data-tab="css">
+                    <i class="fab fa-css3-alt"></i> CSS
+                </button>
+                <button class="tab" data-tab="js">
+                    <i class="fab fa-js"></i> JavaScript
+                </button>
+            </div>
+
+            <div class="editor-wrapper">
+                <!-- HTML Editor -->
+                <div class="editor-section active" id="html-editor">
+                    <div class="editor-area">
+                        <div class="line-numbers" id="html-numbers">1</div>
+                        <textarea class="code-input" id="html-code" placeholder="Escribe tu código HTML aquí..."></textarea>
+                    </div>
+                </div>
+
+                <!-- CSS Editor -->
+                <div class="editor-section" id="css-editor">
+                    <div class="editor-area">
+                        <div class="line-numbers" id="css-numbers">1</div>
+                        <textarea class="code-input" id="css-code" placeholder="Escribe tu código CSS aquí..."></textarea>
+                    </div>
+                </div>
+
+                <!-- JavaScript Editor -->
+                <div class="editor-section" id="js-editor">
+                    <div class="editor-area">
+                        <div class="line-numbers" id="js-numbers">1</div>
+                        <textarea class="code-input" id="js-code" placeholder="Escribe tu código JavaScript aquí..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="notification" id="notification">
+            <i class="fas fa-check-circle"></i> <span id="notification-text">Código copiado</span>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
